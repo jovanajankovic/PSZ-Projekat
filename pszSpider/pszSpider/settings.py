@@ -12,6 +12,8 @@ BOT_NAME = 'pszSpider'
 SPIDER_MODULES = ['pszSpider.spiders']
 NEWSPIDER_MODULE = 'pszSpider.spiders'
 
+# different user agent is sent to the server as part of the request headers
+# this way, we will avoid our requests getting blocked.
 DOWNLOADER_MIDDLEWARES = {
     'scrapy.downloadermiddlewares.useragent.UserAgentMiddleware': None,
     'scrapy_user_agents.middlewares.RandomUserAgentMiddleware': 400,
@@ -29,10 +31,12 @@ ROBOTSTXT_OBEY = True
 # Configure a delay for requests for the same website (default: 0)
 # See https://docs.scrapy.org/en/latest/topics/settings.html#download-delay
 # See also autothrottle settings and docs
-#DOWNLOAD_DELAY = 3
+
+# changed download_delay to 0.5 in order to avoid hitting servers too hard
+DOWNLOAD_DELAY = 0.5
 # The download delay setting will honor only one of:
-#CONCURRENT_REQUESTS_PER_DOMAIN = 16
-#CONCURRENT_REQUESTS_PER_IP = 16
+CONCURRENT_REQUESTS_PER_DOMAIN = 16
+CONCURRENT_REQUESTS_PER_IP = 16
 
 # Disable cookies (enabled by default)
 #COOKIES_ENABLED = False
@@ -66,6 +70,7 @@ ROBOTSTXT_OBEY = True
 
 # Configure item pipelines
 # See https://docs.scrapy.org/en/latest/topics/item-pipeline.html
+# enabled for database and spider intergration
 ITEM_PIPELINES = {
     'pszSpider.pipelines.PszspiderPipeline': 300,
 }
@@ -92,5 +97,5 @@ ITEM_PIPELINES = {
 #HTTPCACHE_STORAGE = 'scrapy.extensions.httpcache.FilesystemCacheStorage'
 
 # Set settings whose default value is deprecated to a future-proof value
-REQUEST_FINGERPRINTER_IMPLEMENTATION = '2.7'
-TWISTED_REACTOR = 'twisted.internet.asyncioreactor.AsyncioSelectorReactor'
+# REQUEST_FINGERPRINTER_IMPLEMENTATION = '2.7'
+# TWISTED_REACTOR = 'twisted.internet.asyncioreactor.AsyncioSelectorReactor'
