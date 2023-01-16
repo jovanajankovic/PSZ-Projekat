@@ -35,6 +35,10 @@ update cars
 set kilometraza = REPLACE(kilometraza,'.','');
 
 -- changed type from varhcar to int for columns godiste, kilometrazu, kubikazu i cenu
+ALTER TABLE `cars` CHANGE `godiste` `godiste` INT NULL DEFAULT NULL;
+ALTER TABLE `cars` CHANGE `kilometraza` `kilometraza` INT NULL DEFAULT NULL;
+ALTER TABLE `cars` CHANGE `kubikaza` `kubikaza` INT NULL DEFAULT NULL;
+ALTER TABLE `cars` CHANGE `cena` `cena` INT NULL DEFAULT NULL;
 
 -- deleted car with id = 7073 => no data was provided
 DELETE from cars where id = 7073
@@ -131,3 +135,16 @@ UPDATE `cars` SET `kubikaza` = '1900' WHERE `cars`.`id` = 9269;
 
 -- converting all lokacija values to uppercase values
 update cars set lokacija = upper(lokacija);
+
+-- updating automatski to automatski/poluautomatski
+update cars set menjac = 'Automatski / poluautomatski' where menjac = 'Automatski';
+
+-- updating motor to kW and removing kS value and string (kW / kS)
+update cars
+set motor = substring(motor,1,LOCATE("/", motor) - 1)
+
+-- changing motor type from varchar to INT
+ALTER TABLE `cars` CHANGE `motor` `motor` INT NULL DEFAULT NULL;
+
+-- updating wrong user input for motor values in kW
+UPDATE `cars` SET `motor` = '140' WHERE `cars`.`id` = 5451;
