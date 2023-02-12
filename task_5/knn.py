@@ -79,7 +79,7 @@ model.fit(x_train, y_train)
 y_prediction = model.predict(x_test)
 
 # displaying confusion matrix
-confusion_matrix = confusion_matrix(y_test, y_prediction, labels = model.classes_)
+confusion_matrix = confusion_matrix(y_test, y_prediction)
 confusion_matrix_display = ConfusionMatrixDisplay(confusion_matrix = confusion_matrix)
 confusion_matrix_display.plot()
 plt.show()
@@ -87,13 +87,13 @@ plt.show()
 # average = 'micro' when there is a class imbalance
 # micro-averaging gives more weight to the performance of the classes with more samples, 
 # which is useful in scenarios where we want to prioritize the correct classification of the most frequent classes.
-f1_score = f1_score(y_test, y_prediction, average = 'micro')
-precision = metrics.accuracy_score(y_test, y_prediction)
 # While precision only considers the positive predictions made by the model,
 # F1 score considers both positive and negative predictions. 
 # In general, F1 score is a better choice than precision when we have imbalanced classes, 
 # that is, when one class is much larger than the other, because F1 score takes into account both precision and recall.
+f1_score = f1_score(y_test, y_prediction, average = 'micro')
 print('F1 score:', f1_score)
+precision = metrics.accuracy_score(y_test, y_prediction)
 print('Precision:', precision)
 
 def calculate_real_price(range):
