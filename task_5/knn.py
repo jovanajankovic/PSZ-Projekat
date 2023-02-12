@@ -1,4 +1,7 @@
 import pandas as pd
+import matplotlib.pyplot as plt
+from numpy import asarray
+import tkinter as tk
 from sklearn.preprocessing import StandardScaler
 from sklearn import metrics
 from sklearn.model_selection import train_test_split
@@ -6,10 +9,8 @@ from sklearn.preprocessing import OrdinalEncoder
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.metrics import f1_score
-import matplotlib.pyplot as plt
-from numpy import asarray
-import tkinter as tk
 
+# reading data from csv file
 dataset = pd.read_csv('cars.csv')
 
 # define the bin edges and labels
@@ -26,11 +27,13 @@ dataset['opseg_cena'] = pd.cut(dataset['cena'], bins=bins, labels=labels, includ
     'p': [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
 } '''
 
-encoding_columns = ['stanje', 'marka', 'model', 'karoserija', 'gorivo', 'menjac', 'broj_vrata', 'broj_sedista', 'klima', 'boja', 'ostecenje', 'lokacija']
-encoder = OrdinalEncoder()
+# attributes that are relevant for model training
+chosen_attributes = ['marka', 'model', 'godiste', 'kilometraza', 'kubikaza', 'motor']
 
+# chosen columns for encoding and data encoding
+encoding_columns = ['marka', 'model']
+encoder = OrdinalEncoder()
 dataset[encoding_columns] = encoder.fit_transform(dataset[encoding_columns])
-#print(dataset)
 
 x = dataset[['stanje', 'marka', 'model', 'godiste', 'kilometraza', 'karoserija', 'gorivo', 'kubikaza', 'motor', 'menjac', 'broj_vrata', 'broj_sedista', 'klima', 'boja', 'ostecenje', 'lokacija']]
 y = dataset['opseg_cena']
@@ -45,13 +48,15 @@ print('najvaznije osobina',model.feature_importances_) '''
 
 # most valuable attributes based on model.feature_importances_
 dataX = asarray(x[['marka', 'model', 'godiste', 'kilometraza', 'kubikaza', 'motor']])
+
+# data scaling
 scaler = StandardScaler()
 x = scaler.fit_transform(dataX)
 
+# splitting data into traing and test sets
 from sklearn.model_selection import train_test_split
 x_train, x_test, y_train, y_test = train_test_split(x,y, test_size = 0.2)
 
-from sklearn.neighbors import KNeighborsClassifier
 
 # from sklearn.model_selection import GridSearchCV
 # grid_search = GridSearchCV(model, param_grid, cv=5)
@@ -67,10 +72,13 @@ from sklearn.neighbors import KNeighborsClassifier
 # print('Best hyperparameters:', best_params)
 
 # for this model, these hyperparameters gave the best results
+# model training
+from sklearn.neighbors import KNeighborsClassifier
 model = KNeighborsClassifier(n_neighbors = 10, weights = 'distance', p = 1)
 model.fit(x_train, y_train)
 y_prediction = model.predict(x_test)
 
+# displaying confusion matrix
 confusion_matrix = confusion_matrix(y_test, y_prediction, labels = model.classes_)
 confusion_matrix_display = ConfusionMatrixDisplay(confusion_matrix = confusion_matrix)
 confusion_matrix_display.plot()
@@ -89,7 +97,6 @@ print('F1 score:', f1_score)
 print('Precision:', precision)
 
 def calculate_real_price(range):
-    print(int(range))
     price_ranges = {
         1: '< 2000e',
         2: '2000-4999e',
@@ -101,60 +108,43 @@ def calculate_real_price(range):
     }
     return price_ranges.get(int(range), '> 30000e')
    
-# ['stanje', 'marka', 'model', 'karoserija', 'gorivo', 'menjac', 'broj_vrata', 'broj_sedista', 'klima', 'boja', 'ostecenje', 'lokacija']
 def submit_form():
-    important_columns = ['marka', 'model', 'godiste', 'kilometraza', 'kubikaza', 'motor']
-    form_columns = ['stanje', 'marka', 'model', 'godiste', 'kilometraza', 'karoserija', 'gorivo', 'kubikaza', 'motor', 'menjac', 'broj_vrata', 'broj_sedista', 'klima', 'boja', 'ostecenje', 'lokacija']
     form_data = []
     marka = marka_entry.get()
-    model1 = model_entry.get()
+    carmodel = model_entry.get()
     godiste = godiste_entry.get()
     kilometraza = kilometraza_entry.get()
     kubikaza = kubikaza_entry.get()
     motor = motor_entry.get()
     
-    #needed to put these hardcoded values in order to make encoder work since it requires all columns
-    stanje = "Polovno vozilo"
-    karoserija = 'Limuzina'
-    gorivo = 'Benzin'
-    menjac = 'Manuelni 4 brzine'
-    broj_vrata = '2/3 vrata'
-    broj_sedista = '2 sedišta'
-    klima = 'Automatska klima'
-    boja = 'Plava'
-    ostecenje = 'Nije oštećen'
-    lokacija = 'BEOGRAD'
-
-    print(f"\nMarka: {marka}\nModel: {model1}")
+    print(f"\nMarka: {marka}\nModel: {carmodel}")
     print(f"Godiste: {godiste}\nKilometraza: {kilometraza}")
     print(f"Kubikaza: {kubikaza}\nMotor: {motor}")
 
-    form_data.append(stanje)
     form_data.append(marka)
-    form_data.append(model1)
+    form_data.append(carmodel)
     form_data.append(godiste)
     form_data.append(kilometraza)
-    form_data.append(karoserija)
-    form_data.append(gorivo)
     form_data.append(kubikaza)
     form_data.append(motor)
-    form_data.append(menjac)
-    form_data.append(broj_vrata)
-    form_data.append(broj_sedista)
-    form_data.append(klima)
-    form_data.append(boja)
-    form_data.append(ostecenje)
-    form_data.append(lokacija)
     
-    car = dict(zip(form_columns, form_data))
+    # creating new car object with data from the form
+    car = dict(zip(chosen_attributes, form_data))
     car = pd.DataFrame([car])
-  
+    
+    # casting necessary data into int
     car['godiste'] = int(car['godiste'])
     car['kilometraza'] = int(car['kilometraza']) 
     car['kubikaza'] = int(car['kubikaza'])
     car['motor'] = int(car['motor'])  
+
+    # encoding necessary data 
     car[encoding_columns] = encoder.transform(car[encoding_columns])
-    car_scaled = scaler.transform(car[important_columns])
+
+    #data scaling
+    car_scaled = scaler.transform(car[chosen_attributes])
+
+    # new price prediction for the car from the form
     car_price_range_prediction = model.predict(car_scaled)
     print('Cena automobila se krece izmedju ', calculate_real_price(car_price_range_prediction))
 
@@ -181,7 +171,6 @@ kubikaza_entry = tk.Entry(root, font=("Arial", 14))
 motor_entry = tk.Entry(root, font=("Arial", 14))
 
 # position labels and entries in the form
-
 marka_label.grid(row=1, column=0, padx=10, pady=10)
 marka_entry.grid(row=1, column=1, padx=10, pady=10)
 model_label.grid(row=2, column=0, padx=10, pady=10)
